@@ -14,9 +14,10 @@
 
 namespace thinkdigital::sissa {
 
-ImageProvider::ImageProvider(QObject* parent)
+ImageProvider::ImageProvider(const QStringList& filters, QObject* parent)
     : QObject(parent)
-    , m_timer_interval_msecs(2000)
+    , m_timer_interval_msecs { 2000 }
+    , m_filters { filters }
 {
 }
 
@@ -80,7 +81,6 @@ QImage ImageProvider::image() const { return m_image; }
 
 void ImageProvider::set_image_directory_path(const QString& value)
 {
-
     const QUrl url { value };
     if (url.isLocalFile()) {
         m_image_directory_path = QDir::toNativeSeparators(url.toLocalFile());
@@ -99,7 +99,7 @@ void ImageProvider::start_slide_show()
     if (not directory.exists())
         return;
 
-    directory.setNameFilters(QStringList() << "*.png");
+    directory.setNameFilters(m_filters);
     m_image_path_list = directory.entryList();
 
     if (m_image_path_list.empty())
@@ -108,6 +108,7 @@ void ImageProvider::start_slide_show()
     process_image();
 
     connect(&m_timer, &QTimer::timeout, this, &ImageProvider::process_image);
+    connect(this, &ImageProvider::slide_show_finished, &m_timer, &QTimer::stop);
     m_timer.start(m_timer_interval_msecs);
     emit slide_show_started();
 }

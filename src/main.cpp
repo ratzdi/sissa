@@ -15,13 +15,20 @@
 
 int main(int argc, char *argv[]) {
     try {
-        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
         QGuiApplication app(argc, argv);
         app.setOrganizationName("thinkdigital");
         app.setOrganizationDomain("thinkdigital.cc");
         app.setApplicationName("SISSA");
         qmlRegisterType<thinkdigital::sissa::LiveImage>("com.thinkdigital", 1, 0, "LiveImage");
-        thinkdigital::sissa::ImageProvider provider {};
+
+        QStringList filters {};
+        filters << "*.jpg"
+                << "*.jpeg"
+                << "*.png"
+                << "*.tiff"
+                << "*.bmp";
+
+        thinkdigital::sissa::ImageProvider provider { filters };
         QQmlApplicationEngine engine;
         engine.rootContext()->setContextProperty("LiveImageProvider", &provider);
         engine.load(QUrl(QLatin1String("qrc:/main.qml")));

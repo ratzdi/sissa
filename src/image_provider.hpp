@@ -15,12 +15,12 @@ class ImageProvider : public QObject {
   Q_PROPERTY(QImage image MEMBER m_image READ image WRITE set_image NOTIFY imageChanged)
 
   public:
-  ImageProvider(QObject *parent = nullptr);
+  ImageProvider(const QStringList& filters, QObject* parent = nullptr);
   QImage load_image();
   void set_image(QImage const& image);
 
   QImage image() const;
-  Q_INVOKABLE void set_image_directory_path(const QString &value);
+  Q_INVOKABLE void set_image_directory_path(const QString& value);
   Q_INVOKABLE void start_slide_show();
   Q_INVOKABLE void stop_slide_show();
   Q_INVOKABLE void set_mirror_type(const QString& value);
@@ -38,6 +38,7 @@ class ImageProvider : public QObject {
   QTimer m_timer;
   QString m_mirror_type;
   QImage m_image;
+  QStringList m_filters;
 
   QString get_next_image_path();
   QImage mirror_image(QImage& image);

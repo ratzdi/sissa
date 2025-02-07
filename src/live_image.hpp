@@ -14,13 +14,16 @@ class LiveImage : public QQuickPaintedItem {
   Q_OBJECT
   Q_PROPERTY(QImage image MEMBER m_image WRITE set_image)
 
-public:
+  public:
   explicit LiveImage(QQuickItem *parent = nullptr);
   void set_image(const QImage &image);
-  void paint(QPainter *painter) override;
+  Q_INVOKABLE void resize(const int w, const int h);
+  void paint(QPainter* painter) override;
 
-private:
+  private:
   QImage m_image;
+  int m_width;
+  int m_height;
 };
 } // namespace thinkdigital::sissa
 

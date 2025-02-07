@@ -1,59 +1,68 @@
 // Copyright (C) 2022 thinkdigital.cc
 // Creator: dimitri.ratz@thinkdigital.cc
 
-import QtQuick.Layouts 1.3
-import QtQuick 2.6
-import QtQuick.Controls 2.0
-import QtQml 2.3
-import QtQuick.Dialogs 1.2
+import QtQuick.Layouts 1.15
+import QtQuick 2.15
+import QtQml 2.15
+import QtQuick.Dialogs 1.3
+import QtQuick.Controls 2.15
 
 import com.thinkdigital 1.0
 
 ApplicationWindow {
     id: window
     visible: true
-    width: 640
-    height: 480
-    title: "SISSA: Simple slide-show app"
+    title: "SISSA: simple slide-show app"
+    visibility: Qt.WindowFullScreen
+    minimumWidth: 1024
+    minimumHeight: 800
+    onWidthChanged: {
+        live_image.resize(rect_image.width, rect_image.height)
+    }
 
-    GridLayout
-    {
+    ColumnLayout {
         anchors.fill: parent
-        rows:1
-        columns: 2
 
-        Rectangle{
+        Rectangle {
+            id: rect_image
+            Layout.margins: 20
             Layout.fillHeight: true
             Layout.fillWidth: true
 
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-            Layout.minimumWidth: parent.width * 0.7
 
             LiveImage {
-                anchors.fill: parent
+                id: live_image
                 image: LiveImageProvider.image
+                width: rect_image.width
+                height: rect_image.height
             }
 
-            Connections{
+            Connections {
                 target: LiveImageProvider
-                onSlide_show_finished: {
+                function onSlide_show_finished() {
                     bt_open_dialog.enabled = true
                     bt_start_slide_show.enabled = true
                     bt_stop_slide_show.enabled = false
+                    slider_interval.enabled = true
+                    cbx_img_mirror_type.enabled = true
                 }
             }
 
-            Connections{
+            Connections {
                 target: LiveImageProvider
-                onSlide_show_started: {
+                function onSlide_show_started() {
                     bt_open_dialog.enabled = false
                     bt_start_slide_show.enabled = false
                     bt_stop_slide_show.enabled = true
+                    slider_interval.enabled = false
+                    cbx_img_mirror_type.enabled = false
                 }
             }
         }
 
-        ColumnLayout {
+        RowLayout {
+            Layout.margins: 20
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
 
             Button {
@@ -69,12 +78,10 @@ ApplicationWindow {
                 selectFolder: true
 
                 onAccepted: {
-                    console.log("You chose: " + fdialog_path_selector.folder)
                     LiveImageProvider.set_image_directory_path(fdialog_path_selector.folder)
                     bt_start_slide_show.enabled = true
+                    cbx_img_mirror_type.enabled = true
                 }
-
-                Component.onCompleted: visible = false
             }
 
             Button {
@@ -91,33 +98,36 @@ ApplicationWindow {
                 enabled: false
             }
 
+            Text {
+                id: txt_mirror_type
+                text: qsTr("Mirror mode")
+            }
+
             ComboBox {
-                id: img_mirror_type
+                id: cbx_img_mirror_type
                 editable: false
+                enabled: false
                 model: ListModel {
-                   id: model
+                   id: cbx_model
                    ListElement { text: "None" }
                    ListElement { text: "Horizontal" }
                    ListElement { text: "Vertical" }
                    ListElement { text: "Both" }
                 }
-                onAccepted: {
-                   if (find(editText) === -1) {
-                       model.append({text: editText})
-                   }
-                }
+
                 onCurrentIndexChanged: {
-                    LiveImageProvider.set_mirror_type(model.get(currentIndex).text)
+                    LiveImageProvider.set_mirror_type(cbx_model.get(currentIndex).text)
                 }
             }
 
             Text {
                 id: txt_interval_value
-                text: Math.round(slider_intreval.value)
+                text: "Interval: " + Math.round(slider_interval.value)
             }
 
             Slider {
-                id: slider_intreval
+                id: slider_interval
+                enabled: false
                 from: 1
                 value: 2
                 to: 60
