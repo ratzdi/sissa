@@ -4,7 +4,7 @@
 import QtQuick.Layouts 1.15
 import QtQuick 2.15
 import QtQml 2.15
-import QtQuick.Dialogs 1.3
+import QtQuick.Dialogs
 import QtQuick.Controls 2.15
 
 import com.thinkdigital 1.0
@@ -74,11 +74,10 @@ ApplicationWindow {
             FileDialog {
                 id: fdialog_path_selector
                 title: "Choose a directory"
-                folder: shortcuts.home
-                selectFolder: true
+                currentFolder: "./"
 
                 onAccepted: {
-                    LiveImageProvider.set_image_directory_path(fdialog_path_selector.folder)
+                    LiveImageProvider.set_image_directory_path(fdialog_path_selector.currentFolder)
                     bt_start_slide_show.enabled = true
                     cbx_img_mirror_type.enabled = true
                 }
